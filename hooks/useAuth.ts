@@ -4,13 +4,59 @@ import {
     RegisterCredentials,
     User,
 } from '@/types/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from "react";
+import {
+    Platform
+} from 'react-native';
 
 const STORAGE_KEY = 'checklistfleet_auth';
 const USERS_KEY = 'checklistfleet_users';
 
-// Simulando um backend - em produção, isso seria uma API real
+// Helper para acessar storage (SecureStore no native, AsyncStorage no web)
+// ... (getStorageItem, setStorageItem, deleteStorageItem permanecem iguais)
+const getStorageItem = async (key: string): Promise<string | null> => {
+    try {
+        if (Platform.OS === 'web') {
+            return await AsyncStorage.getItem(key);
+        } else {
+            return await SecureStore.getItemAsync(key);
+        }
+    } catch (error) {
+        console.error(`Erro ao recuperar ${key}:`, error);
+        return null;
+    }
+};
+
+const setStorageItem = async (key: string, value: string): Promise<void> => {
+    try {
+        if (Platform.OS === 'web') {
+            await AsyncStorage.setItem(key, value);
+        } else {
+            await SecureStore.setItemAsync(key, value);
+        }
+    } catch (error) {
+        console.error(`Erro ao salvar ${key}:`, error);
+    }
+};
+
+const deleteStorageItem = async (key: string): Promise<void> => {
+    try {
+        if (Platform.OS === 'web') {
+            await AsyncStorage.removeItem(key);
+        } else {
+            await SecureStore.deleteItemAsync(key);
+        }
+    } catch (error) {
+        console.error(`Erro ao deletar ${key}:`, error);
+    }
+};
+
+// =========================================================================
+// CORREÇÃO: Usando btoa/atob nativos em vez de Buffer, com codificação segura
+// =========================================================================
+
 const generateJWT = (user: User): string => {
     const payload = {
         sub: user.id,
@@ -19,28 +65,38 @@ const generateJWT = (user: User): string => {
         role: user.role,
         iat: Date.now(),
     };
-    return Buffer.from(JSON.stringify(payload)).toString('base64');
+
+    // Conversão JSON -> string UTF-8 -> Base64
+    const jsonString = JSON.stringify(payload);
+
+    // Base64 encode (btoa é global em RN/Web)
+    return btoa(unescape(encodeURIComponent(jsonString)));
 };
 
 const decodeJWT = (token: string): User | null => {
     try {
-        const payload = JSON.parse(Buffer.from(token, 'base64').toString());
+        // Base64 decode (atob é global em RN/Web)
+        const jsonString = decodeURIComponent(escape(atob(token)));
+
+        const payload = JSON.parse(jsonString);
+
         return {
             id: payload.sub,
             email: payload.email,
             name: payload.name,
             role: payload.role,
-            createdAt: new Date().toISOString(),
+            createdAt: new Date().toISOString(), // Nota: O timestamp de criação deve vir do payload
         };
     } catch (error) {
         console.error('Erro ao decodificar JWT:', error);
         return null;
     }
 };
+// =========================================================================
 
 const initializeDefaultAdmin = async () => {
     try {
-        const usersJson = await SecureStore.getItemAsync(USERS_KEY);
+        const usersJson = await getStorageItem(USERS_KEY);
         if (!usersJson) {
             const adminUser: User = {
                 id: 'admin-001',
@@ -49,10 +105,7 @@ const initializeDefaultAdmin = async () => {
                 role: 'admin',
                 createdAt: new Date().toISOString(),
             };
-            await SecureStore.setItemAsync(
-                USERS_KEY,
-                JSON.stringify([adminUser]),
-            );
+            await setStorageItem(USERS_KEY, JSON.stringify([adminUser]));
         }
     } catch (error) {
         console.error('Erro ao inicializar admin:', error);
@@ -73,7 +126,7 @@ export const useAuth = () => {
             try {
                 await initializeDefaultAdmin();
 
-                const token = await SecureStore.getItemAsync(STORAGE_KEY);
+                const token = await getStorageItem(STORAGE_KEY);
                 if (token) {
                     const user = decodeJWT(token);
                     if (user) {
@@ -97,7 +150,7 @@ export const useAuth = () => {
     const register = useCallback(async (credentials: RegisterCredentials) => {
         try {
             // Recuperar usuários existentes
-            const usersJson = await SecureStore.getItemAsync(USERS_KEY);
+            const usersJson = await getStorageItem(USERS_KEY);
             const users: User[] = usersJson ? JSON.parse(usersJson) : [];
 
             // Verificar se email já existe
@@ -116,11 +169,11 @@ export const useAuth = () => {
 
             // Salvar usuário
             users.push(newUser);
-            await SecureStore.setItemAsync(USERS_KEY, JSON.stringify(users));
+            await setStorageItem(USERS_KEY, JSON.stringify(users));
 
             // Gerar JWT
             const token = generateJWT(newUser);
-            await SecureStore.setItemAsync(STORAGE_KEY, token);
+            await setStorageItem(STORAGE_KEY, token);
 
             setAuthState({
                 token,
@@ -138,7 +191,7 @@ export const useAuth = () => {
     const login = useCallback(async (credentials: LoginCredentials) => {
         try {
             // Recuperar usuários salvos
-            const usersJson = await SecureStore.getItemAsync(USERS_KEY);
+            const usersJson = await getStorageItem(USERS_KEY);
             const users: User[] = usersJson ? JSON.parse(usersJson) : [];
 
             // Encontrar usuário (em produção, seria verificação de senha com hash)
@@ -147,9 +200,13 @@ export const useAuth = () => {
                 throw new Error('Usuário não encontrado');
             }
 
+            // NOTE: A lógica de senha (credentials.password) está faltando, 
+            // assumindo que esta é uma simulação de autenticação baseada apenas no email.
+            // Para produção, você precisaria de uma lógica de verificação de senha salva.
+
             // Gerar JWT
             const token = generateJWT(user);
-            await SecureStore.setItemAsync(STORAGE_KEY, token);
+            await setStorageItem(STORAGE_KEY, token);
 
             setAuthState({
                 token,
@@ -166,7 +223,7 @@ export const useAuth = () => {
 
     const logout = useCallback(async () => {
         try {
-            await SecureStore.deleteItemAsync(STORAGE_KEY);
+            await deleteStorageItem(STORAGE_KEY);
             setAuthState({
                 token: null,
                 user: null,
