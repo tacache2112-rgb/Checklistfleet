@@ -16,7 +16,9 @@ export const useChecklistStorage = () => {
         }
     };
 
-    const saveChecklist = async (checklist: VehicleChecklist): Promise<void> => {
+    const saveChecklist = async (
+        checklist: VehicleChecklist,
+    ): Promise<void> => {
         try {
             const checklists = await getAllChecklists();
             const index = checklists.findIndex((c) => c.id === checklist.id);
@@ -34,7 +36,9 @@ export const useChecklistStorage = () => {
         }
     };
 
-    const loadChecklist = async (id: string): Promise<VehicleChecklist | null> => {
+    const loadChecklist = async (
+        id: string,
+    ): Promise<VehicleChecklist | null> => {
         try {
             const checklists = await getAllChecklists();
             return checklists.find((c) => c.id === id) || null;

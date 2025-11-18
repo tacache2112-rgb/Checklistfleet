@@ -28,6 +28,7 @@ export interface VehicleChecklist {
     inspectorSignature: string;
     createdAt: string;
     updatedAt: string;
+    userId?: string;
 }
 
 export const INITIAL_SECTIONS: Omit<ChecklistSection, 'sectionNotes'>[] = [
@@ -36,7 +37,12 @@ export const INITIAL_SECTIONS: Omit<ChecklistSection, 'sectionNotes'>[] = [
         title: 'ITENS MECÂNICOS',
         emoji: '🔧',
         items: [
-            { id: 'oil', name: 'Nível do óleo do motor', status: null, notes: '' },
+            {
+                id: 'oil',
+                name: 'Nível do óleo do motor',
+                status: null,
+                notes: '',
+            },
             {
                 id: 'coolant',
                 name: 'Nível da água do radiador (líquido de arrefecimento)',
@@ -67,7 +73,12 @@ export const INITIAL_SECTIONS: Omit<ChecklistSection, 'sectionNotes'>[] = [
                 status: null,
                 notes: '',
             },
-            { id: 'clutch', name: 'Estado da embreagem', status: null, notes: '' },
+            {
+                id: 'clutch',
+                name: 'Estado da embreagem',
+                status: null,
+                notes: '',
+            },
             {
                 id: 'brakes',
                 name: 'Funcionamento do freio de pé e de mão',
@@ -87,17 +98,37 @@ export const INITIAL_SECTIONS: Omit<ChecklistSection, 'sectionNotes'>[] = [
         title: 'SISTEMA ELÉTRICO',
         emoji: '⚡',
         items: [
-            { id: 'headlights', name: 'Faróis (alto e baixo)', status: null, notes: '' },
+            {
+                id: 'headlights',
+                name: 'Faróis (alto e baixo)',
+                status: null,
+                notes: '',
+            },
             {
                 id: 'rear_lights',
                 name: 'Lanternas traseiras e dianteiras',
                 status: null,
                 notes: '',
             },
-            { id: 'brake_light', name: 'Luz de freio', status: null, notes: '' },
+            {
+                id: 'brake_light',
+                name: 'Luz de freio',
+                status: null,
+                notes: '',
+            },
             { id: 'reverse_light', name: 'Luz de ré', status: null, notes: '' },
-            { id: 'turn_signals', name: 'Pisca-alerta e setas', status: null, notes: '' },
-            { id: 'interior_light', name: 'Iluminação interna', status: null, notes: '' },
+            {
+                id: 'turn_signals',
+                name: 'Pisca-alerta e setas',
+                status: null,
+                notes: '',
+            },
+            {
+                id: 'interior_light',
+                name: 'Iluminação interna',
+                status: null,
+                notes: '',
+            },
             {
                 id: 'dashboard',
                 name: 'Painel de instrumentos funcionando corretamente',
@@ -118,7 +149,12 @@ export const INITIAL_SECTIONS: Omit<ChecklistSection, 'sectionNotes'>[] = [
                 status: null,
                 notes: '',
             },
-            { id: 'spare_tire', name: 'Estepe em boas condições', status: null, notes: '' },
+            {
+                id: 'spare_tire',
+                name: 'Estepe em boas condições',
+                status: null,
+                notes: '',
+            },
             {
                 id: 'tools',
                 name: 'Macaco e chave de roda disponíveis',
@@ -168,7 +204,12 @@ export const INITIAL_SECTIONS: Omit<ChecklistSection, 'sectionNotes'>[] = [
                 status: null,
                 notes: '',
             },
-            { id: 'mats', name: 'Tapetes fixos e limpos', status: null, notes: '' },
+            {
+                id: 'mats',
+                name: 'Tapetes fixos e limpos',
+                status: null,
+                notes: '',
+            },
             {
                 id: 'ac',
                 name: 'Ar-condicionado/ventilação funcionando',
@@ -181,7 +222,12 @@ export const INITIAL_SECTIONS: Omit<ChecklistSection, 'sectionNotes'>[] = [
                 status: null,
                 notes: '',
             },
-            { id: 'triangle', name: 'Triângulo de sinalização', status: null, notes: '' },
+            {
+                id: 'triangle',
+                name: 'Triângulo de sinalização',
+                status: null,
+                notes: '',
+            },
             {
                 id: 'documents',
                 name: 'Documentos do veículo e do condutor',

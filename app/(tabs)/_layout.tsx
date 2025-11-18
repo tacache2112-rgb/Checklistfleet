@@ -1,13 +1,14 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
-
 import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors } from '@/constants/theme';
+import { useAuth } from '@/hooks/useAuth';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { Tabs } from 'expo-router';
+import React from 'react';
 
 export default function TabLayout() {
     const colorScheme = useColorScheme();
+    const { user, isAuthenticated } = useAuth();
 
     return (
         <Tabs
@@ -27,19 +28,46 @@ export default function TabLayout() {
                 options={{
                     title: 'Checklists',
                     tabBarIcon: ({ color }) => (
-                        <IconSymbol size={28} name="checkmark.circle.fill" color={color} />
+                        <IconSymbol
+                            size={28}
+                            name="checkmark.circle.fill"
+                            color={color}
+                        />
                     ),
                 }}
             />
-            <Tabs.Screen
-                name="admin"
-                options={{
-                    title: 'Admin',
-                    tabBarIcon: ({ color }) => (
-                        <IconSymbol size={28} name="gearshape.fill" color={color} />
-                    ),
-                }}
-            />
+
+            {isAuthenticated && user?.role === 'admin' && (
+                <Tabs.Screen
+                    name="pessoal"
+                    options={{
+                        title: 'Pessoal',
+                        tabBarIcon: ({ color }) => (
+                            <IconSymbol
+                                size={28}
+                                name="person.fill"
+                                color={color}
+                            />
+                        ),
+                    }}
+                />
+            )}
+
+            {isAuthenticated && user?.role !== 'admin' && (
+                <Tabs.Screen
+                    name="pessoal"
+                    options={{
+                        title: 'Pessoal',
+                        tabBarIcon: ({ color }) => (
+                            <IconSymbol
+                                size={28}
+                                name="person.fill"
+                                color={color}
+                            />
+                        ),
+                    }}
+                />
+            )}
         </Tabs>
     );
 }

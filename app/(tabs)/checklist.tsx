@@ -7,49 +7,52 @@ import { StyleSheet, View } from 'react-native';
 type ViewMode = 'list' | 'create' | 'edit';
 
 export default function ChecklistScreen() {
-const [viewMode, setViewMode] = useState<ViewMode>('list');
-const [selectedId, setSelectedId] = useState<string | null>(null);
+    const [viewMode, setViewMode] = useState<ViewMode>('list');
+    const [selectedId, setSelectedId] = useState<string | null>(null);
 
-const handleSelectChecklist = (id: string) => {
-setSelectedId(id);
-setViewMode('edit');
-};
+    const handleSelectChecklist = (id: string) => {
+        setSelectedId(id);
+        setViewMode('edit');
+    };
 
-const handleCreateNew = () => {
-setSelectedId(null);
-setViewMode('create');
-};
+    const handleCreateNew = () => {
+        setSelectedId(null);
+        setViewMode('create');
+    };
 
-const handleSave = (checklist: VehicleChecklist) => {
-setViewMode('list');
-setSelectedId(null);
-};
+    const handleSave = (checklist: VehicleChecklist) => {
+        setViewMode('list');
+        setSelectedId(null);
+    };
 
-const handleGoBack = () => {
-setViewMode('list');
-setSelectedId(null);
-};
+    const handleGoBack = () => {
+        setViewMode('list');
+        setSelectedId(null);
+    };
 
-if (viewMode === 'create' || viewMode === 'edit') {
-return (
-<View style={styles.container}>
-<ChecklistForm checklistId={selectedId || undefined} onSave={handleSave} />
-</View>
-);
-}
+    if (viewMode === 'create' || viewMode === 'edit') {
+        return (
+            <View style={styles.container}>
+                <ChecklistForm
+                    checklistId={selectedId || undefined}
+                    onSave={handleSave}
+                />
+            </View>
+        );
+    }
 
-return (
-<View style={styles.container}>
-<ChecklistList
-onSelectChecklist={handleSelectChecklist}
-onCreateNew={handleCreateNew}
-/>
-</View>
-);
+    return (
+        <View style={styles.container}>
+            <ChecklistList
+                onSelectChecklist={handleSelectChecklist}
+                onCreateNew={handleCreateNew}
+            />
+        </View>
+    );
 }
 
 const styles = StyleSheet.create({
-container: {
-flex: 1,
-},
+    container: {
+        flex: 1,
+    },
 });
